@@ -1,0 +1,222 @@
+﻿@*{
+    ViewBag.Title = "Home Page";
+}
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title.</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+            <p>
+                To learn more about ASP.NET MVC visit
+                <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
+                The page features <mark>videos, tutorials, and samples</mark> to help you get the most from ASP.NET MVC.
+                If you have any questions about ASP.NET MVC visit
+                <a href="http://forums.asp.net/1146.aspx/1?MVC" title="ASP.NET MVC Forum">our forums</a>.
+            </p>
+        </div>
+    </section>
+}
+<h3>We suggest the following:</h3>
+<ol class="round">
+    <li class="one">
+        <h5>Getting Started</h5>
+        ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+        enables a clean separation of concerns and that gives you full control over markup
+        for enjoyable, agile development. ASP.NET MVC includes many features that enable
+        fast, TDD-friendly development for creating sophisticated applications that use
+        the latest web standards.
+        <a href="http://go.microsoft.com/fwlink/?LinkId=245151">Learn more…</a>
+    </li>
+
+    <li class="two">
+        <h5>Add NuGet packages and jump-start your coding</h5>
+        NuGet makes it easy to install and update free libraries and tools.
+        <a href="http://go.microsoft.com/fwlink/?LinkId=245153">Learn more…</a>
+    </li>
+
+    <li class="three">
+        <h5>Find Web Hosting</h5>
+        You can easily find a web hosting company that offers the right mix of features
+        and price for your applications.
+        <a href="http://go.microsoft.com/fwlink/?LinkId=245157">Learn more…</a>
+    </li>
+</ol>
+*@
+@using SchoolBus.Models;
+@model MyMap
+@{
+    ViewBag.Title = "School";
+    var jsData = Newtonsoft.Json.JsonConvert.SerializeObject(Model);
+    Layout = null;
+}
+<div id="map" style="height:600px;"></div>
+<div id="result"></div>
+<script>
+    var data = @Html.Raw(jsData);
+    var schools = data.schools;
+    var myaddress = [];
+    function initAutocomplete() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 10.8433839, lng: 106.63060399999995 },
+            zoom: 13,
+            mapTypeId: 'roadmap'
+        });
+          
+        var icon = {
+            url: "http://maps.gstatic.com/mapfiles/place_api/icons/school-71.png",
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25),
+        };
+
+        var school_markers = [];
+        for (var i = 0; i < schools.length; i++) {
+            // Create a marker for each place.
+            var myinfowindow = new google.maps.InfoWindow({
+                content: schools[i].Name
+            });
+            school_markers.push( new google.maps.Marker({
+                map: map,
+                icon: icon,
+                title: 'school',
+                position: new google.maps.LatLng(schools[i].Lat, schools[i].Lng),
+                setMap: map,
+                visible:false,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(school_markers[i], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+       
+        var icon2 = {
+            //url: "http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            url: "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0",
+            size: new google.maps.Size(9, 9),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(9, 9),
+            scaledSize: new google.maps.Size(9, 9),
+        };
+
+        var student_markers = [];
+        for(var j =0; j < data.studentaddresses.length; j++){
+            var myinfowindow = new google.maps.InfoWindow({
+                content: data.studentaddresses[j].Address
+            });
+
+            // Create a marker for each place.
+            student_markers.push(new google.maps.Marker({
+                map: map,
+                icon: icon2,
+                title: 'student',
+                position: new google.maps.LatLng(data.studentaddresses[j].Lat, data.studentaddresses[j].Lng),
+                setMap: map,
+                visible:false,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(student_markers[j], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+
+        var icon3 = {
+            url: "http://maps.gstatic.com/mapfiles/place_api/icons/generic_business-71.png",
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25),
+        };
+
+        var ward_markers =[];
+        for(var k=0; k < data.wards.length; k++){
+            var myinfowindow = new google.maps.InfoWindow({
+                content: data.wards[k].Name
+            });
+
+            // Create a marker for each place.
+            ward_markers.push(new google.maps.Marker({
+                map: map,
+                icon: icon3,
+                title: 'ward',
+                position: new google.maps.LatLng(data.wards[k].Lat, data.wards[k].Lng),
+                setMap: map,
+                visible:false,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(ward_markers[k], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+
+        var icon4 = {
+            url: "https://maps.gstatic.com/mapfiles/place_api/icons/generic_recreational-71.png",
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25),
+        };
+
+        var district_markers = [];
+        for(var k=0; k < data.districts.length; k++){
+            var myinfowindow = new google.maps.InfoWindow({
+                content: data.districts[k].Name
+            });
+
+            // Create a marker for each place.
+            district_markers.push(new google.maps.Marker({
+                map: map,
+                icon: icon4,
+                title: 'district',
+                position: new google.maps.LatLng(data.districts[k].Lat, data.districts[k].Lng),
+                setMap: map,
+                visible:false,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(district_markers[k], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+
+        checkAvailableZoom(map, school_markers, student_markers, ward_markers ,district_markers);
+
+        map.addListener('zoom_changed', function() {
+            checkAvailableZoom(map, school_markers, student_markers, ward_markers ,district_markers);
+        });
+    }
+
+    var checkAvailableZoom = function(map, school_markers, student_markers, ward_markers ,district_markers){
+        if(map.getZoom() <12){
+            toggleVisibility(false, school_markers);
+            toggleVisibility(false, student_markers);
+            toggleVisibility(false, ward_markers);
+            toggleVisibility(true, district_markers);
+        }
+        else if(map.getZoom()>13){
+            toggleVisibility(true, school_markers);
+            toggleVisibility(true, student_markers);
+            if(map.getZoom()==14){
+                toggleVisibility(true, ward_markers);
+            }
+            else{
+                toggleVisibility(false, ward_markers);
+            }
+            toggleVisibility(false, district_markers);
+        }
+        else{
+            toggleVisibility(false, school_markers);
+            toggleVisibility(false, student_markers);
+            toggleVisibility(true, ward_markers);
+            toggleVisibility(false, district_markers);
+        }
+    }
+
+    var toggleVisibility = function(show, markers){
+        for (var i = 0, length = markers.length; i < length; i++)
+            markers[i].setVisible(show);
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRZrUxQikxZwfkMmwy9AqnkxvltaFZYss&libraries=places&callback=initAutocomplete"
+        async defer></script>

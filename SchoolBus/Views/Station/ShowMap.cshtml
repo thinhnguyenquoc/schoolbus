@@ -1,0 +1,111 @@
+﻿@{
+    //Layout = null;
+}
+<script src="~/Scripts/jquery-1.8.2.js"></script>
+@using SchoolBus.Models;
+@model List<Station>
+@{
+    ViewBag.Title = "School";
+    var jsData = Newtonsoft.Json.JsonConvert.SerializeObject(Model);
+    Layout = null;
+}
+<form id="myForm" action="ShowMap" method="post">
+    <input id="Id" name="Id" type="hidden" />
+    <select name="listbox" id="selectid">
+        @foreach (var w in ViewBag.Wards as List<SchoolBus.Models.Ward>)
+        {
+            <option value="@w.WardId">
+                @w.Name
+            </option>
+        }
+    </select>
+    <button type="button" onclick="myFunction()">Search</button>
+</form>
+<div id="map" style="height:600px;"></div>
+<div id="result"></div>
+<script>
+    var data = @Html.Raw(jsData);
+    var schools = data.schools;
+    var myaddress = [];
+    function initAutocomplete() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 10.8433839, lng: 106.63060399999995 },
+            zoom: 13,
+            mapTypeId: 'roadmap'
+        });
+
+        var icon2 = {
+            //url: "http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            url: "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0",
+            size: new google.maps.Size(9, 9),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(9, 9),
+            scaledSize: new google.maps.Size(9, 9),
+        };
+
+        var station_markers = [];
+        for(var j =0; j < data.length; j++){
+            var myinfowindow = new google.maps.InfoWindow({
+                content: data[j].Name+'-'+data[j].Address
+            });
+
+            // Create a marker for each place.
+            station_markers.push(new google.maps.Marker({
+                map: map,
+                icon: icon2,
+                title: 'student',
+                position: new google.maps.LatLng(data[j].Lat, data[j].Lng),
+                setMap: map,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(station_markers[j], 'click', function() {
+                this.infowindow.open(map, this);
+            });
+        }
+       
+        /*checkAvailableZoom(map, station_markers);
+
+        map.addListener('zoom_changed', function() {
+            checkAvailableZoom(map, station_markers);
+        });*/
+    }
+
+    var checkAvailableZoom = function(map, school_markers, student_markers, ward_markers ,district_markers){
+        if(map.getZoom() <12){
+            toggleVisibility(false, school_markers);
+            toggleVisibility(false, student_markers);
+            toggleVisibility(false, ward_markers);
+            toggleVisibility(true, district_markers);
+        }
+        else if(map.getZoom()>13){
+            toggleVisibility(true, school_markers);
+            toggleVisibility(true, student_markers);
+            if(map.getZoom()==14){
+                toggleVisibility(true, ward_markers);
+            }
+            else{
+                toggleVisibility(false, ward_markers);
+            }
+            toggleVisibility(false, district_markers);
+        }
+        else{
+            toggleVisibility(false, school_markers);
+            toggleVisibility(false, student_markers);
+            toggleVisibility(true, ward_markers);
+            toggleVisibility(false, district_markers);
+        }
+    }
+
+    var toggleVisibility = function(show, markers){
+        for (var i = 0, length = markers.length; i < length; i++)
+            markers[i].setVisible(show);
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRZrUxQikxZwfkMmwy9AqnkxvltaFZYss&libraries=places&callback=initAutocomplete"
+        async defer></script>
+<script>
+    function myFunction() {
+        $('#Id').val($('#selectid').val());
+        $('#myForm').submit();
+    }
+</script>

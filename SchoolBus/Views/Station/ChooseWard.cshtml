@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "ChooseWard";
+}
+
+@model List<SchoolBus.Models.Station>
+<form id="myForm" action="ChooseWard" method="post">
+    <input id="Id" name="Id" type="hidden" />
+    <select name="listbox" id="selectid">
+        @foreach (var w in ViewBag.Wards as List<SchoolBus.Models.Ward>)
+        {
+            <option value="@w.WardId">
+                @w.Name
+            </option>
+        }
+    </select>
+    <button type="button" onclick="myFunction()">Search</button>
+</form>
+<table>
+
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Group</th>
+            <th>Neighbor</th>
+            <th>Street</th>
+            <th>Lat</th>
+            <th>Lng</th>
+        </tr>
+    </thead>
+    @foreach (var station in Model as List<SchoolBus.Models.Station>)
+    {
+        <tr>
+            <td>
+                @station.StationId
+            </td>
+            <td>
+                @station.Name
+            </td>
+            <td>
+                @station.Address
+            </td>
+            <td>
+                @station.Group
+            </td>
+            <td>
+                @station.Neighbor
+            </td>
+            <td>
+                @station.Lat
+            </td>
+            <td>
+                @station.Lng
+            </td>
+        </tr>
+    }
+</table>
+
+<script>
+    function myFunction() {
+        $('#Id').val($('#selectid').val());
+        $('#myForm').submit();
+    }
+</script>
