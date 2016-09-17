@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchoolBus", "SchoolBus\Scho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "kmean", "kmean\kmean.csproj", "{3F9C8FDF-10E3-43DD-8737-D2EE7986EF65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetLatitudeLongitude", "GetLatitudeLongitude\GetLatitudeLongitude.csproj", "{1A5142E7-9759-4EE1-8FDF-A16E0D8F65BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetDistance", "GetDistance\GetDistance.csproj", "{2FFE9936-2FB2-4E8F-869D-127F2C3770D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{3F9C8FDF-10E3-43DD-8737-D2EE7986EF65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F9C8FDF-10E3-43DD-8737-D2EE7986EF65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F9C8FDF-10E3-43DD-8737-D2EE7986EF65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A5142E7-9759-4EE1-8FDF-A16E0D8F65BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A5142E7-9759-4EE1-8FDF-A16E0D8F65BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A5142E7-9759-4EE1-8FDF-A16E0D8F65BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A5142E7-9759-4EE1-8FDF-A16E0D8F65BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FFE9936-2FB2-4E8F-869D-127F2C3770D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FFE9936-2FB2-4E8F-869D-127F2C3770D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FFE9936-2FB2-4E8F-869D-127F2C3770D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FFE9936-2FB2-4E8F-869D-127F2C3770D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
