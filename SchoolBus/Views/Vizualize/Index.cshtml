@@ -11,76 +11,366 @@
 </head>
 <body>
     <div id="left" style="float:left;width:400px;">
-        <label>Nhập địa chỉ GPS cần hiển thị (lat lng)</label>
+        <label>Nhập địa chỉ GPS trường (lat lng)</label>
         <br/>
-        <textarea id="gps" style="width:300px; height:500px;">
-
-        </textarea>
+        <textarea id="schoolgps" style="width:300px; height:50px;"></textarea>
         <br/>
+        <input type="checkbox" id="showschool" checked="checked"/>
+        <br/>
+        <label>Nhập địa chỉ GPS học sinh (lat lng)</label>
+        <br />
+        <textarea id="studentgps" style="width:300px; height:200px;"></textarea>
+        <br />
+        <input type="checkbox" id="showstudent" checked="checked" />
+        <br />
+        <label>Nhập địa chỉ GPS trạm (lat lng)</label>
+        <br />
+        <textarea id="stationgps" style="width:300px; height:200px;"></textarea>
+        <br />
+        <input type="checkbox" id="showstation" checked="checked" />
+        <br/>
+        <label>Nhập các điểm thuộc tuyến (lat lng)</label>
+        <br />
+        <textarea id="routegps" style="width:300px; height:200px;"></textarea>
+        <br />
+        <input type="checkbox" id="showroute" checked="checked" />
+        <br />
         <button id="show">Show</button>
     </div>
     <div id="map" style="width:800px;height:600px;"></div>
 
     <script src="~/Scripts/jquery-1.8.2.min.js"></script>
     <script>
-        var positions = [];
-        var temp_markers = [];
+		function getRandomColor() {
+			var letters = '0123456789ABCDEF';
+			var color = '#';
+			for (var i = 0; i < 6; i++ ) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		}
+        var schoolpositions = [];
+        var studentpositions = [];
+        var stationpositions = [];
+        var school_temp_markers = [];
+        var routepositions = [];
+        var indexroutes = [];
+		var stationtemp_temp_markers = [];
+		var allpathindex = 0;
+		var colors = [];
         $('#show').click(function () {
             //alert(JSON.stringify($('#gps').val()));
-            positions = [];
-            temp_markers = [];
-            var gpsstring = $('#gps').val();
-            var positionstring = gpsstring.split('\n');            
-            for (var i = 0; i < positionstring.length - 1; i++) {
-                var lat = positionstring[i].split('\t')[0];
-                var lng = positionstring[i].split('\t')[1];
-                positions.push({lat:lat,lng:lng});
+            schoolpositions = [];
+            studentpositions = [];
+            stationpositions = [];
+            routepositions = [];
+            indexroutes = [];
+			allpathindex = 0;
+            school_temp_markers = [];
+            student_temp_markers = [];
+            station_temp_markers = [];
+			stationtemp_temp_markers = [];
+            var routesgpsstring = $('#routegps').val();
+            var routespositionstring = routesgpsstring.split('*\t*\n');
+			for(var i = 0 ; i < routespositionstring.length; i++){
+				var routepositionstring = routespositionstring[i].split('\n');
+				var path = []
+				for (var j = 0; j < routepositionstring.length - 1; j++) {
+					var lat = routepositionstring[j].split('\t')[0];
+					var lng = routepositionstring[j].split('\t')[1];
+					path.push({ lat: lat, lng: lng, show: $('#showroute').is(":checked") });
+				}
+				routepositions.push(path);
+				indexroutes.push(0);
+				colors.push(getRandomColor());
+			}
+            
+            var schoolgpsstring = $('#schoolgps').val();
+            var schoolpositionstring = schoolgpsstring.split('\n');
+            for (var i = 0; i < schoolpositionstring.length - 1; i++) {
+                var lat = schoolpositionstring[i].split('\t')[0];
+                var lng = schoolpositionstring[i].split('\t')[1];
+                schoolpositions.push({ lat: lat, lng: lng, show: $('#showschool').is(":checked")});
+            }
+            var studentgpsstring = $('#studentgps').val();
+            var studentpositionstring = studentgpsstring.split('\n');
+            for (var i = 0; i < studentpositionstring.length - 1; i++) {
+                var lat = studentpositionstring[i].split('\t')[0];
+                var lng = studentpositionstring[i].split('\t')[1];
+                studentpositions.push({ lat: lat, lng: lng, show: $('#showstudent').is(":checked") });
+            }
+            var stationgpsstring = $('#stationgps').val();
+            var stationpositionstring = stationgpsstring.split('\n');
+            for (var i = 0; i < stationpositionstring.length - 1; i++) {
+                var lat = stationpositionstring[i].split('\t')[0];
+                var lng = stationpositionstring[i].split('\t')[1];
+                stationpositions.push({ lat: lat, lng: lng, show: $('#showstation').is(":checked") });
             }
             initAutocomplete();
         })
-    //var data 
-   
-    function initAutocomplete() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 10.8433839, lng: 106.63060399999995 },
-            zoom: 13,
-            mapTypeId: 'roadmap'
+      
+        function initAutocomplete() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 10.8433839, lng: 106.63060399999995 },
+                zoom: 13,
+                mapTypeId: 'roadmap'
+            });
+
+            var icon = {
+                url: "http://maps.gstatic.com/mapfiles/place_api/icons/school-71.png",
+                size: new google.maps.Size(31, 31),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(0, 0),
+                scaledSize: new google.maps.Size(15, 15),
+            };
+
+            for (var k = 0; k < schoolpositions.length; k++) {
+                var myinfowindow = new google.maps.InfoWindow({
+                    content: 'lat: ' + schoolpositions[k].lat + '; ' + 'lng: ' + schoolpositions[k].lng
+                });
+
+                // Create a marker for each place.
+                school_temp_markers.push(new google.maps.Marker({
+                    map: map,
+                    icon: icon,
+                    title: 'school',
+                    position: new google.maps.LatLng(schoolpositions[k].lat, schoolpositions[k].lng),
+                    setMap: map,
+                    visible: schoolpositions[k].show,
+                    infowindow: myinfowindow
+                }));
+                google.maps.event.addListener(school_temp_markers[k], 'click', function () {
+                    this.infowindow.open(map, this);
+                });
+            }
+
+            var icon2 = {
+                url: "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0",
+                size: new google.maps.Size(9, 9),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(9, 9),
+                scaledSize: new google.maps.Size(9, 9),
+            };
+
+            for (var k = 0; k < studentpositions.length; k++) {
+                var myinfowindow = new google.maps.InfoWindow({
+                    content: 'lat: ' + studentpositions[k].lat + '; ' + 'lng: ' + studentpositions[k].lng
+                });
+
+                // Create a marker for each place.
+                student_temp_markers.push(new google.maps.Marker({
+                    map: map,
+                    icon: icon2,
+                    title: 'student',
+                    position: new google.maps.LatLng(studentpositions[k].lat, studentpositions[k].lng),
+                    setMap: map,
+                    visible: studentpositions[k].show,
+                    infowindow: myinfowindow
+                }));
+                google.maps.event.addListener(student_temp_markers[k], 'click', function () {
+                    this.infowindow.open(map, this);
+                });
+            }
+
+            var icon3 = {
+                url: "https://maps.gstatic.com/mapfiles/place_api/icons/bus-71.png",
+                size: new google.maps.Size(31, 31),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(10, 10),
+                scaledSize: new google.maps.Size(15, 15),
+            };
+
+            for (var k = 0; k < stationpositions.length; k++) {
+                var myinfowindow = new google.maps.InfoWindow({
+                    content: 'lat: ' + stationpositions[k].lat + '; ' + 'lng: ' + stationpositions[k].lng
+                });
+
+                // Create a marker for each place.
+                station_temp_markers.push(new google.maps.Marker({
+                    map: map,
+                    icon: icon3,
+                    title: 'station',
+                    position: new google.maps.LatLng(stationpositions[k].lat, stationpositions[k].lng),
+                    setMap: map,
+                    visible: stationpositions[k].show,
+                    infowindow: myinfowindow
+                }));
+                google.maps.event.addListener(station_temp_markers[k], 'click', function () {
+                    this.infowindow.open(map, this);
+                });
+            }
+        
+            if (routepositions.length > 0 && routepositions[0].length > 0) {
+				drawAllPath(map);
+            }
+      
+        }
+		
+		function drawAllPath(map){
+			if(routepositions[allpathindex][0].show){
+				var directionsService = new google.maps.DirectionsService;
+				var directionsDisplay = new google.maps.DirectionsRenderer;
+				directionsDisplay.setMap(map);
+				calculateAndDisplayRoute(directionsService, directionsDisplay, map);
+			}
+		}
+
+        function calculateAndDisplayRoute(directionsService, directionsDisplay, map) {
+        directionsService.route({
+            origin: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
+            destination: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
+            travelMode: 'DRIVING'
+        }, function (response, status) {
+            if (status === 'OK') {
+				
+				var pinColor1 = colors[allpathindex].split('#')[1];
+				var pinImage1 = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor1,
+					new google.maps.Size(21, 34),
+					new google.maps.Point(0,0),
+					new google.maps.Point(10, 34));
+				
+				var pinColor2 = colors[allpathindex].split('#')[1];
+				var pinImage2 = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor2,
+					new google.maps.Size(21, 34),
+					new google.maps.Point(0,0),
+					new google.maps.Point(10, 34));
+					
+				/*var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+					new google.maps.Size(40, 37),
+					new google.maps.Point(0, 0),
+					new google.maps.Point(12, 35));*/
+				
+				var icon3 = {
+							url: "https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png",
+							size: new google.maps.Size(7, 7),
+							origin: new google.maps.Point(0, 0),
+							anchor: new google.maps.Point(7, 7),
+							scaledSize: new google.maps.Size(7, 7),
+						};
+				
+				if(indexroutes[allpathindex] == 0){
+					var a = new google.maps.Marker({
+								map: map,
+								icon: pinImage1,
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
+								setMap: map,
+								visible: true
+							});
+							var a2 =null;
+					if(routepositions[allpathindex].length > 2){
+						a2 = new google.maps.Marker({
+								map: map,
+								icon: icon3,
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
+								setMap: map,
+								visible: true
+							});
+					}
+					else{
+						a2 = new google.maps.Marker({
+								map: map,
+								icon: pinImage2,
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
+								setMap: map,
+								visible: true
+							});
+					}
+					stationtemp_temp_markers.push(a);
+					stationtemp_temp_markers.push(a2);
+				}
+				else if(indexroutes[allpathindex] == routepositions[allpathindex].length-2){
+					var a = new google.maps.Marker({
+								map: map,
+								icon: icon3,								
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
+								setMap: map,
+								visible: true
+							});
+
+					var a2 = new google.maps.Marker({
+								map: map,
+								icon: pinImage2,
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
+								setMap: map,
+								visible: true
+							});
+					stationtemp_temp_markers.push(a);
+					stationtemp_temp_markers.push(a2);
+				}
+				else{
+					var a = new google.maps.Marker({
+								map: map,
+								icon: icon3,								
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
+								setMap: map,
+								visible: true
+							});
+
+					var a2 = new google.maps.Marker({
+								map: map,
+								icon: icon3,	
+								title: 'station',
+								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
+								setMap: map,
+								visible: true
+							});
+					stationtemp_temp_markers.push(a);
+					stationtemp_temp_markers.push(a2);
+				}
+				
+                draw(response.routes[0].overview_path, map);
+                //directionsDisplay.setDirections(response);
+                indexroutes[allpathindex] += 1;
+                if (indexroutes[allpathindex] < routepositions[allpathindex].length-1) {
+		    setTimeout(function(){ 
+                    	calculateAndDisplayRoute(directionsService, directionsDisplay, map);
+		    }, 900);
+                }
+				else{
+					allpathindex++;
+					if(allpathindex < routepositions.length)
+					setTimeout(function(){ 
+						drawAllPath(map);
+					}, 1000);
+				}
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
         });
 
-        var icon2 = {
-            //url: "http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
-            url: "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0",
-            size: new google.maps.Size(9, 9),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(9, 9),
-            scaledSize: new google.maps.Size(9, 9),
-        };
-
-        for (var k = 0; k < positions.length; k++) {
-            var myinfowindow = new google.maps.InfoWindow({
-                content: 'lat: '+ positions[k].lat+'; '+'lng: '+ positions[k].lng
+        function draw(ob, map) {
+            var flightPlanCoordinates = [
+              //{ lat: 37.772, lng: -122.214 },
+              //{ lat: 21.291, lng: -157.821 },
+              //{ lat: -18.142, lng: 178.431 },
+              //{ lat: -27.467, lng: 153.027 }
+            ];
+            for (var i = 0; i < ob.length; i++) {
+                flightPlanCoordinates.push({ lat: ob[i].lat(), lng: ob[i].lng() })
+            }
+            var flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                geodesic: true,
+                strokeColor: colors[allpathindex],
+                strokeOpacity: 1.0,
+                strokeWeight: 2
             });
 
-            // Create a marker for each place.
-            temp_markers.push(new google.maps.Marker({
-                map: map,
-                icon: icon2,
-                title: 'district',
-                position: new google.maps.LatLng(positions[k].lat, positions[k].lng),
-                setMap: map,
-                //visible: false,
-                infowindow: myinfowindow
-            }));
-            google.maps.event.addListener(temp_markers[k], 'click', function () {
-                this.infowindow.open(map, this);
-            });
+            flightPath.setMap(map);
         }
-    
     }
 
     
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRZrUxQikxZwfkMmwy9AqnkxvltaFZYss&libraries=places&callback=initAutocomplete"
+    @*<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRZrUxQikxZwfkMmwy9AqnkxvltaFZYss&libraries=places&callback=initAutocomplete"
+            async defer></script>*@
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI23HUoG4zqAvSwheflDAXaoYDX0cB96c&libraries=places&callback=initAutocomplete"
             async defer></script>
 
 </body>
