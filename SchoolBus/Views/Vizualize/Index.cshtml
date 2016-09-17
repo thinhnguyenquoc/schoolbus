@@ -222,7 +222,9 @@
             travelMode: 'DRIVING'
         }, function (response, status) {
             if (status === 'OK') {
-				
+				var myinfowindow = new google.maps.InfoWindow({
+                    content: 'NO: ' + allpathindex
+                });
 				var pinColor1 = colors[allpathindex].split('#')[1];
 				var pinImage1 = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor1,
 					new google.maps.Size(21, 34),
@@ -252,10 +254,11 @@
 					var a = new google.maps.Marker({
 								map: map,
 								icon: pinImage1,
-								title: 'station',
+								title: 'Start station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 							var a2 =null;
 					if(routepositions[allpathindex].length > 2){
@@ -265,19 +268,27 @@
 								title: 'station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 					}
 					else{
 						a2 = new google.maps.Marker({
 								map: map,
 								icon: pinImage2,
-								title: 'station',
+								title: 'End station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 					}
+					google.maps.event.addListener(a, 'click', function () {
+						this.infowindow.open(map, this);
+					});
+					google.maps.event.addListener(a2, 'click', function () {
+						this.infowindow.open(map, this);
+					});
 					stationtemp_temp_markers.push(a);
 					stationtemp_temp_markers.push(a2);
 				}
@@ -288,19 +299,27 @@
 								title: 'station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 
 					var a2 = new google.maps.Marker({
 								map: map,
 								icon: pinImage2,
-								title: 'station',
+								title: 'End station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 					stationtemp_temp_markers.push(a);
 					stationtemp_temp_markers.push(a2);
+					google.maps.event.addListener(a, 'click', function () {
+						this.infowindow.open(map, this);
+					});
+					google.maps.event.addListener(a2, 'click', function () {
+						this.infowindow.open(map, this);
+					});
 				}
 				else{
 					var a = new google.maps.Marker({
@@ -309,7 +328,8 @@
 								title: 'station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]].lat, routepositions[allpathindex][indexroutes[allpathindex]].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 
 					var a2 = new google.maps.Marker({
@@ -318,10 +338,17 @@
 								title: 'station',
 								position: new google.maps.LatLng(routepositions[allpathindex][indexroutes[allpathindex]+1].lat, routepositions[allpathindex][indexroutes[allpathindex]+1].lng),
 								setMap: map,
-								visible: true
+								visible: true,
+								infowindow: myinfowindow
 							});
 					stationtemp_temp_markers.push(a);
 					stationtemp_temp_markers.push(a2);
+					google.maps.event.addListener(a, 'click', function () {
+						this.infowindow.open(map, this);
+					});
+					google.maps.event.addListener(a2, 'click', function () {
+						this.infowindow.open(map, this);
+					});
 				}
 				
                 draw(response.routes[0].overview_path, map);
@@ -359,7 +386,7 @@
                 geodesic: true,
                 strokeColor: colors[allpathindex],
                 strokeOpacity: 1.0,
-                strokeWeight: 2
+                strokeWeight: 3
             });
 
             flightPath.setMap(map);
