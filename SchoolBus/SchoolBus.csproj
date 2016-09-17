@@ -184,6 +184,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\StationController.cs" />
+    <Compile Include="Controllers\VizualizeController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -308,6 +309,7 @@
     <Content Include="Views\Station\Index.cshtml" />
     <Content Include="Views\Station\ChooseWard.cshtml" />
     <Content Include="Views\Station\ShowMap.cshtml" />
+    <Content Include="Views\Vizualize\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

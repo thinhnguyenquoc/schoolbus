@@ -1,0 +1,87 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div id="left" style="float:left;width:400px;">
+        <label>Nhập địa chỉ GPS cần hiển thị (lat lng)</label>
+        <br/>
+        <textarea id="gps" style="width:300px; height:500px;">
+
+        </textarea>
+        <br/>
+        <button id="show">Show</button>
+    </div>
+    <div id="map" style="width:800px;height:600px;"></div>
+
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script>
+        var positions = [];
+        var temp_markers = [];
+        $('#show').click(function () {
+            //alert(JSON.stringify($('#gps').val()));
+            positions = [];
+            temp_markers = [];
+            var gpsstring = $('#gps').val();
+            var positionstring = gpsstring.split('\n');            
+            for (var i = 0; i < positionstring.length - 1; i++) {
+                var lat = positionstring[i].split('\t')[0];
+                var lng = positionstring[i].split('\t')[1];
+                positions.push({lat:lat,lng:lng});
+            }
+            initAutocomplete();
+        })
+    //var data 
+   
+    function initAutocomplete() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 10.8433839, lng: 106.63060399999995 },
+            zoom: 13,
+            mapTypeId: 'roadmap'
+        });
+
+        var icon2 = {
+            //url: "http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            url: "https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0",
+            size: new google.maps.Size(9, 9),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(9, 9),
+            scaledSize: new google.maps.Size(9, 9),
+        };
+
+        for (var k = 0; k < positions.length; k++) {
+            var myinfowindow = new google.maps.InfoWindow({
+                content: 'lat: '+ positions[k].lat+'; '+'lng: '+ positions[k].lng
+            });
+
+            // Create a marker for each place.
+            temp_markers.push(new google.maps.Marker({
+                map: map,
+                icon: icon2,
+                title: 'district',
+                position: new google.maps.LatLng(positions[k].lat, positions[k].lng),
+                setMap: map,
+                //visible: false,
+                infowindow: myinfowindow
+            }));
+            google.maps.event.addListener(temp_markers[k], 'click', function () {
+                this.infowindow.open(map, this);
+            });
+        }
+    
+    }
+
+    
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRZrUxQikxZwfkMmwy9AqnkxvltaFZYss&libraries=places&callback=initAutocomplete"
+            async defer></script>
+
+</body>
+</html>
